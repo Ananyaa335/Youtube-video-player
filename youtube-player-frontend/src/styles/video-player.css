@@ -1,0 +1,92 @@
+/* Container that mimics the YouTube "Theater Mode" or large player */
+.video-container {
+  position: relative;
+  width: 100%;
+  max-width: 1280px; /* Standard 720p width base */
+  aspect-ratio: 16 / 9; /* Forces the YouTube shape */
+  margin: 20px auto;
+  background-color: black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+}
+
+video {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Controls overlay */
+.video-controls-container {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  color: white;
+  z-index: 100;
+  opacity: 0;
+  transition: opacity 150ms ease-in-out;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+  padding: 0 10px 5px 10px;
+}
+
+.video-container:hover .video-controls-container,
+.video-container:focus-within .video-controls-container {
+  opacity: 1;
+}
+
+/* The Timeline / Scrub Bar */
+.timeline-container {
+  height: 4px; /* Thin by default like YT */
+  margin-bottom: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: height 100ms ease-in-out;
+}
+
+.video-container:hover .timeline-container {
+  height: 7px; /* Gets thicker on hover */
+}
+
+.timeline {
+  background-color: rgba(150, 150, 150, .5);
+  height: 100%;
+  width: 100%;
+  position: relative;
+}
+
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  right: calc(100% - var(--progress-position, 0) * 100%);
+  background-color: red;
+}
+
+/* Individual Control buttons */
+.controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding-bottom: 5px;
+}
+
+.controls button {
+  background: none;
+  border: none;
+  color: inherit;
+  padding: 0;
+  height: 40px;
+  width: 40px;
+  cursor: pointer;
+}
+
+.controls button svg {
+  width: 30px;
+  height: 30px;
+}
