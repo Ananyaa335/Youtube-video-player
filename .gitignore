@@ -1,1 +1,12 @@
+# videos
 *.mp4
+
+# node
+node_modules/
+
+# build
+dist/
+build/
+
+# env
+.env
