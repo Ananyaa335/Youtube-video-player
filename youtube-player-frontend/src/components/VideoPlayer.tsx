@@ -1,79 +1,115 @@
-import { useRef, useState, } from 'react'
-import '../styles/video-player.css'
-import { PlayIcon, PauseIcon, VolumeHighIcon, FullScreenIcon } from './Icons'
+import { useRef, useState } from "react"
+import "../styles/video-player.css"
+import {
+  PlayIcon,
+  PauseIcon,
+  VolumeHighIcon,
+  FullScreenIcon,
+  SpeedIcon // Import your new icon
+} from "./Icons"
+
+const VIDEO_URL = "https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/360/Big_Buck_Bunny_360_10s_1MB.mp4"
 
 export default function VideoPlayer() {
   const videoRef = useRef<HTMLVideoElement>(null)
   const timelineRef = useRef<HTMLDivElement>(null)
+
   const [isPaused, setIsPaused] = useState(true)
   const [progress, setProgress] = useState(0)
+  const [currentTime, setCurrentTime] = useState(0)
+  const [duration, setDuration] = useState(0)
+  const [playbackSpeed, setPlaybackSpeed] = useState(1)
 
-  // Update progress bar as video plays
-  const handleTimeUpdate = () => {
-    if (videoRef.current) {
-      const currentProgress = videoRef.current.currentTime / videoRef.current.duration
-      setProgress(currentProgress)
+  const formatTime = (time: number) => {
+    if (isNaN(time)) return "0:00"
+    const minutes = Math.floor(time / 60)
+    const seconds = Math.floor(time % 60)
+    return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`
+  }
+
+  const togglePlay = () => {
+    if (!videoRef.current) return
+    if (videoRef.current.paused) {
+      videoRef.current.play()
+      setIsPaused(false)
+    } else {
+      videoRef.current.pause()
+      setIsPaused(true)
     }
   }
 
-  // Scrubbing/Seeking logic
-  const handleTimelineUpdate = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleTimeUpdate = () => {
+    if (!videoRef.current) return
+    const current = videoRef.current.currentTime
+    const total = videoRef.current.duration
+    setCurrentTime(current)
+    setDuration(total)
+    setProgress(current / total)
+  }
+
+  const handleTimelineClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!timelineRef.current || !videoRef.current) return
     const rect = timelineRef.current.getBoundingClientRect()
     const percent = Math.min(Math.max(0, e.clientX - rect.left), rect.width) / rect.width
     videoRef.current.currentTime = percent * videoRef.current.duration
   }
 
-  const togglePlay = () => {
-    if (videoRef.current?.paused) {
-      videoRef.current.play()
-      setIsPaused(false)
-    } else {
-      videoRef.current?.pause()
-      setIsPaused(true)
-    }
+  const togglePlaybackSpeed = () => {
+    if (!videoRef.current) return
+    let newSpeed = playbackSpeed + 0.5
+    if (newSpeed > 2) newSpeed = 0.5 
+    videoRef.current.playbackRate = newSpeed
+    setPlaybackSpeed(newSpeed)
   }
 
   return (
-    <div className="video-container">
-      <video 
-        ref={videoRef}
-        onTimeUpdate={handleTimeUpdate}
-        onClick={togglePlay}
-        src="https://www.w3schools.com/html/mov_bbb.mp4" 
-      />
-      
-      <div className="video-controls-container">
-        <div 
-          className="timeline-container" 
-          ref={timelineRef}
-          onClick={handleTimelineUpdate}
-        >
-          <div 
-            className="timeline" 
-            style={{ '--progress-position': progress } as React.CSSProperties}
-          ></div>
-        </div>
+    <div className="page-layout">
+      <div className="main-content">
+        
+        <div className="video-container">
+          <video
+            ref={videoRef}
+            src={VIDEO_URL}
+            onClick={togglePlay}
+            onTimeUpdate={handleTimeUpdate}
+            playsInline
+          />
+          
+          <div className="video-controls-container">
+            <div className="timeline-container" ref={timelineRef} onClick={handleTimelineClick}>
+              <div className="timeline" style={{ "--progress-position": progress } as any} />
+            </div>
 
-        <div className="controls">
-          <button onClick={togglePlay}>
-            {isPaused ? <PlayIcon /> : <PauseIcon />}
-          </button>
-          
-          <button><VolumeHighIcon /></button>
-          
-          <div className="duration-container" style={{fontSize: '14px', fontFamily: 'Roboto, Arial'}}>
-            {/* You can add a timestamp helper function here later */}
-            0:00 / 0:10 
+            <div className="controls">
+              <button onClick={togglePlay}>
+                {isPaused ? <PlayIcon /> : <PauseIcon />}
+              </button>
+
+              <button><VolumeHighIcon /></button>
+
+              <div className="duration-container">
+                {formatTime(currentTime)} / {formatTime(duration)}
+              </div>
+
+              {/* Enhanced Speed Control */}
+              <div className="speed-control-wrapper">
+                <button className="speed-btn" onClick={togglePlaybackSpeed}>
+                  <SpeedIcon />
+                  <span className="speed-text">{playbackSpeed}x</span>
+                </button>
+              </div>
+
+              <button 
+                onClick={() => videoRef.current?.requestFullscreen()} 
+                style={{ marginLeft: "auto" }}
+              >
+                <FullScreenIcon />
+              </button>
+            </div>
           </div>
-
-          <button 
-            onClick={() => videoRef.current?.requestFullscreen()} 
-            style={{marginLeft: "auto"}}
-          >
-            <FullScreenIcon />
-          </button>
         </div>
+        <h1 className="video-title">BigBuckBunny Title ShortClip</h1>
+        
       </div>
     </div>
   )
