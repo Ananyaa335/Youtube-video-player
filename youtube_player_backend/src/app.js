@@ -6,11 +6,12 @@ const authRoutes = require("./routes/auth_routes");
 
 const app = express();
 
+
 app.use(helmet());                  // Security headers
 app.use(express.json());            // Parse JSON
 app.use(cookieParser());
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: true,
   credentials: true
 }));            // Read cookies
 
