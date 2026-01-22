@@ -1,4 +1,5 @@
-import { useRef, useState } from "react"
+import { useRef, useState,useEffect } from "react"
+import { useNavigate } from "react-router-dom"
 import "../styles/video-player.css"
 import {
   PlayIcon,
@@ -6,19 +7,39 @@ import {
   VolumeHighIcon,
   FullScreenIcon,
   SpeedIcon // Import your new icon
-} from "./Icons"
+} from "../components/Icons"
+import { checkAuth } from "../api/auth"
 
 const VIDEO_URL = "https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/360/Big_Buck_Bunny_360_10s_1MB.mp4"
 
 export default function VideoPlayer() {
   const videoRef = useRef<HTMLVideoElement>(null)
   const timelineRef = useRef<HTMLDivElement>(null)
+  const navigate = useNavigate()
 
   const [isPaused, setIsPaused] = useState(true)
   const [progress, setProgress] = useState(0)
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
   const [playbackSpeed, setPlaybackSpeed] = useState(1)
+  const [loading, setLoading] = useState(true)
+ 
+  
+  /* 🔐 AUTH CHECK (VERY IMPORTANT) */
+  useEffect(() => {
+    const verifyAuth = async () => {
+      const user = await checkAuth()
+      if (!user) {
+        navigate("/login")
+      } else {
+        setLoading(false)
+      }
+    }
+    verifyAuth()
+  }, [navigate])
+
+  if (loading) return <p style={{ textAlign: "center" }}>Loading...</p>
+
 
   const formatTime = (time: number) => {
     if (isNaN(time)) return "0:00"
@@ -61,10 +82,32 @@ export default function VideoPlayer() {
     videoRef.current.playbackRate = newSpeed
     setPlaybackSpeed(newSpeed)
   }
+   /* 🚪 OPTIONAL LOGOUT */
+  const handleLogout = async () => {
+    await fetch("http://localhost:5000/api/auth/logout", {
+      method: "POST",
+      credentials: "include"
+    })
+    navigate("/login")
+  }
+
 
   return (
     <div className="page-layout">
       <div className="main-content">
+        {/* 🔓 LOGOUT BUTTON */}
+        <button
+          onClick={handleLogout}
+          style={{
+            position: "absolute",
+            top: 20,
+            right: 20,
+            padding: "8px 14px",
+            cursor: "pointer"
+          }}
+        >
+          Logout
+        </button>
         
         <div className="video-container">
           <video
