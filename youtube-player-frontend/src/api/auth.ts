@@ -10,6 +10,7 @@ export const loginUser = async (email: string, password: string) => {
 
   if (!res.ok) 
     throw new Error("Login failed");
+  
     return res.json();
   };
   

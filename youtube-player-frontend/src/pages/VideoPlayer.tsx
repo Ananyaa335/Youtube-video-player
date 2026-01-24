@@ -1,4 +1,4 @@
-import { useRef, useState,useEffect } from "react"
+import { useRef, useState, useEffect, useCallback } from "react"
 import { useNavigate } from "react-router-dom"
 import "../styles/video-player.css"
 import {
@@ -6,11 +6,11 @@ import {
   PauseIcon,
   VolumeHighIcon,
   FullScreenIcon,
-  SpeedIcon // Import your new icon
+  SpeedIcon
 } from "../components/Icons"
 import { checkAuth } from "../api/auth"
 
-const VIDEO_URL = "https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/360/Big_Buck_Bunny_360_10s_1MB.mp4"
+const VIDEO_URL = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4"
 
 export default function VideoPlayer() {
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -23,9 +23,12 @@ export default function VideoPlayer() {
   const [duration, setDuration] = useState(0)
   const [playbackSpeed, setPlaybackSpeed] = useState(1)
   const [loading, setLoading] = useState(true)
- 
+  const [isBuffering, setIsBuffering] = useState(false) // State for buffering spinner
+  const [showQualityMenu, setShowQualityMenu] = useState(false) // State for Quality menu
   
-  /* 🔐 AUTH CHECK (VERY IMPORTANT) */
+  const STORAGE_KEY = `resume_pos_${VIDEO_URL}`;
+
+  /* 🔐 AUTH CHECK */
   useEffect(() => {
     const verifyAuth = async () => {
       const user = await checkAuth()
@@ -38,8 +41,46 @@ export default function VideoPlayer() {
     verifyAuth()
   }, [navigate])
 
-  if (loading) return <p style={{ textAlign: "center" }}>Loading...</p>
+  /* ⌨️ CUSTOM KEYBOARD SHORTCUTS */
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    if (!videoRef.current) return;
+    // Don't trigger if user is typing in a search bar/input
+    if (document.activeElement?.tagName === "INPUT" || document.activeElement?.tagName === "TEXTAREA") return;
 
+    switch (e.key.toLowerCase()) {
+      case " ": // Space bar
+        e.preventDefault(); // Stop page scroll
+        togglePlay();
+        break;
+      case "m": // Mute
+        videoRef.current.muted = !videoRef.current.muted;
+        break;
+      case "arrowleft": // Seek back 10s
+        videoRef.current.currentTime = Math.max(0, videoRef.current.currentTime - 10);
+        break;
+      case "arrowright": // Seek forward 10s
+        videoRef.current.currentTime = Math.min(videoRef.current.duration, videoRef.current.currentTime + 10);
+        break;
+    }
+  }, [isPaused]);
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleKeyDown]);
+
+  /* 📺 PICTURE-IN-PICTURE LOGIC */
+  const togglePiP = async () => {
+    try {
+      if (videoRef.current !== document.pictureInPictureElement) {
+        await videoRef.current?.requestPictureInPicture();
+      } else {
+        await document.exitPictureInPicture();
+      }
+    } catch (error) {
+      console.error("PiP failed", error);
+    }
+  }
 
   const formatTime = (time: number) => {
     if (isNaN(time)) return "0:00"
@@ -47,6 +88,18 @@ export default function VideoPlayer() {
     const seconds = Math.floor(time % 60)
     return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`
   }
+
+  const handleLoadedMetadata = () => {
+    if (!videoRef.current) return;
+    const total = videoRef.current.duration;
+    setDuration(total);
+
+    const savedPos = localStorage.getItem(STORAGE_KEY);
+    if (savedPos) {
+      const time = parseFloat(savedPos);
+      videoRef.current.currentTime = time < total ? time : 0;
+    }
+  };
 
   const togglePlay = () => {
     if (!videoRef.current) return
@@ -63,9 +116,10 @@ export default function VideoPlayer() {
     if (!videoRef.current) return
     const current = videoRef.current.currentTime
     const total = videoRef.current.duration
-    setCurrentTime(current)
-    setDuration(total)
+    setCurrentTime(current);
     setProgress(current / total)
+
+    localStorage.setItem(STORAGE_KEY , current.toString());
   }
 
   const handleTimelineClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -82,7 +136,12 @@ export default function VideoPlayer() {
     videoRef.current.playbackRate = newSpeed
     setPlaybackSpeed(newSpeed)
   }
-   /* 🚪 OPTIONAL LOGOUT */
+
+  const handleVideoEnded = () => {
+    localStorage.removeItem(STORAGE_KEY);
+    setIsPaused(true);
+  };
+
   const handleLogout = async () => {
     await fetch("http://localhost:5000/api/auth/logout", {
       method: "POST",
@@ -91,30 +150,26 @@ export default function VideoPlayer() {
     navigate("/login")
   }
 
+  if (loading) return <p style={{ textAlign: "center" }}>Loading...</p>
 
   return (
     <div className="page-layout">
       <div className="main-content">
-        {/* 🔓 LOGOUT BUTTON */}
-        <button
-          onClick={handleLogout}
-          style={{
-            position: "absolute",
-            top: 20,
-            right: 20,
-            padding: "8px 14px",
-            cursor: "pointer"
-          }}
-        >
-          Logout
-        </button>
+        <button onClick={handleLogout} className="logout-button">Logout</button>
         
         <div className="video-container">
+          {/* ⏳ BUFFERING SPINNER */}
+          {isBuffering && <div className="buffering-spinner"></div>}
+
           <video
             ref={videoRef}
             src={VIDEO_URL}
             onClick={togglePlay}
             onTimeUpdate={handleTimeUpdate}
+            onLoadedMetadata={handleLoadedMetadata}
+            onEnded={handleVideoEnded}
+            onWaiting={() => setIsBuffering(true)} // Shows spinner when loading
+            onPlaying={() => setIsBuffering(false)} // Hides spinner when playing
             playsInline
           />
           
@@ -134,13 +189,26 @@ export default function VideoPlayer() {
                 {formatTime(currentTime)} / {formatTime(duration)}
               </div>
 
-              {/* Enhanced Speed Control */}
+              {/* ⚙️ QUALITY SELECTOR */}
+              <div className="quality-container">
+                <button onClick={() => setShowQualityMenu(!showQualityMenu)} className="icon-btn">⚙️</button>
+                {showQualityMenu && (
+                  <div className="quality-menu">
+                    <button onClick={() => setShowQualityMenu(false)}>360p (Auto)</button>
+                    <button onClick={() => alert("1080p requires HLS setup!")}>1080p</button>
+                  </div>
+                )}
+              </div>
+
               <div className="speed-control-wrapper">
                 <button className="speed-btn" onClick={togglePlaybackSpeed}>
                   <SpeedIcon />
                   <span className="speed-text">{playbackSpeed}x</span>
                 </button>
               </div>
+
+              {/* 📺 PiP BUTTON */}
+              <button onClick={togglePiP} className="icon-btn" title="Picture in Picture">🖼️</button>
 
               <button 
                 onClick={() => videoRef.current?.requestFullscreen()} 
@@ -152,7 +220,6 @@ export default function VideoPlayer() {
           </div>
         </div>
         <h1 className="video-title">BigBuckBunny Title ShortClip</h1>
-        
       </div>
     </div>
   )
