@@ -1,4 +1,5 @@
 require("dotenv").config();   //  loads .env
+require("./src/config/redis");
 
 const app = require("./src/app");
 const connectDB = require("./src/config/db");
