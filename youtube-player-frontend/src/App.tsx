@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Login from "./pages/login";
 import VideoPlayer from "./pages/VideoPlayer";
 import { checkAuth } from "./api/auth";
+import ForgotPassword from "./pages/ForgotPassword";
 
 const App = () => {
   const [isAuth, setIsAuth] = useState(false);
@@ -34,6 +35,10 @@ const App = () => {
           path="/login"
           element={<Login setIsAuth={setIsAuth} />}
         />
+        <Route
+          path="/forgot-password"
+          element={<ForgotPassword />}
+        />
 
         {/* VIDEO PLAYER (PROTECTED) */}
         <Route
@@ -50,11 +55,13 @@ const App = () => {
             isAuth ? <Navigate to="/player" /> : <Navigate to="/login" />
           }
         />
+        
       </Routes>
     </BrowserRouter>
     </div>
     
   );
+
 };
 
 export default App;
