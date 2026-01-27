@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Login from "./pages/login";
 import VideoPlayer from "./pages/VideoPlayer";
 import { checkAuth } from "./api/auth";
+// import 'bootstrap/dist/css/bootstrap.min.css';
 
 const App = () => {
   const [isAuth, setIsAuth] = useState(false);
@@ -25,7 +26,7 @@ const App = () => {
 
   return (
     <div>
-      <h1>Youtube video player</h1>
+      <h1 className="text-3xl ">Youtube video player</h1>
       
     <BrowserRouter>
       <Routes>

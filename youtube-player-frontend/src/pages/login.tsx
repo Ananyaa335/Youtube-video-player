@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { loginUser } from "../api/auth";
 import { useNavigate } from "react-router-dom";
+import "../styles/login.css"; // Make sure to create this file
 
 type LoginProps = {
   setIsAuth: (value: boolean) => void;
@@ -12,55 +13,56 @@ const Login = ({ setIsAuth }: LoginProps) => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
     try {
       await loginUser(email, password);
-      
-      // ✅ mark user as authenticated
-
       setIsAuth(true);
-      // ✅ redirect to video player page
       navigate("/player");
-
-      alert("Login successful ✅");
     } catch {
       setError("Invalid email or password");
     }
   };
 
   return (
-    <div style={{ maxWidth: 400, margin: "100px auto" }}>
-      <h2>Login</h2>
+    <div className="login-page">
+      <div className="login-card">
+        <h2 className="login-title">Sign in to your Account</h2>
+        <p className="login-subtitle">Sign in to continue to Video Player</p>
 
-      <form onSubmit={handleSubmit}>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          required
-          onChange={(e) => setEmail(e.target.value)}
-        />
+        <form onSubmit={handleSubmit} className="login-form">
+          <div className="input-group">
+            <label>Email Address</label>
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              required
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
 
-        <br /><br />
+          <div className="input-group">
+            <label>Password</label>
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              required
+              autoComplete="current-password"
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          required
-          onChange={(e) => setPassword(e.target.value)}
-        />
+          <button type="submit" className="login-btn">
+            Login
+          </button>
+        </form>
 
-        <br /><br />
-
-        <button type="submit">Login</button>
-      </form>
-
-      {error && <p style={{ color: "red" }}>{error}</p>}
+        {error && <p className="error-message">{error}</p>}
+      </div>
     </div>
   );
 };
