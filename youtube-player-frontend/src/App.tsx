@@ -3,7 +3,8 @@ import { useEffect, useState } from "react";
 import Login from "./pages/login";
 import VideoPlayer from "./pages/VideoPlayer";
 import { checkAuth } from "./api/auth";
-// import 'bootstrap/dist/css/bootstrap.min.css';
+import ForgotPassword from "./pages/ForgotPassword";
+
 
 const App = () => {
   const [isAuth, setIsAuth] = useState(false);
@@ -22,7 +23,7 @@ const App = () => {
   // ⏳ Prevent UI flicker
   if (loading) {
     return <p style={{ textAlign: "center" }}>Loading...</p>;
-  }
+  }   
 
   return (
     <div>
@@ -34,6 +35,11 @@ const App = () => {
         <Route
           path="/login"
           element={<Login setIsAuth={setIsAuth} />}
+        />
+        {/*forgot password*/}
+        <Route
+          path="/forgot-password"
+          element={<ForgotPassword />}
         />
 
         {/* VIDEO PLAYER (PROTECTED) */}
@@ -51,11 +57,13 @@ const App = () => {
             isAuth ? <Navigate to="/player" /> : <Navigate to="/login" />
           }
         />
+        
       </Routes>
     </BrowserRouter>
     </div>
     
   );
+
 };
 
 export default App;

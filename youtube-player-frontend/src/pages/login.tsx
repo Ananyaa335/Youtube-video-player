@@ -56,6 +56,16 @@ const Login = ({ setIsAuth }: LoginProps) => {
             />
           </div>
 
+           <br /><br />
+
+          <p
+            style={{ color: "blue", cursor: "pointer" }}
+            onClick={() => navigate("/forgot-password")}
+          >
+          Forgot Password?
+          </p>
+
+
           <button type="submit" className="login-btn">
             Login
           </button>
