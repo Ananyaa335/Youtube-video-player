@@ -5,6 +5,7 @@ import VideoPlayer from "./pages/VideoPlayer";
 import { checkAuth } from "./api/auth";
 import ForgotPassword from "./pages/ForgotPassword";
 
+
 const App = () => {
   const [isAuth, setIsAuth] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -22,11 +23,11 @@ const App = () => {
   // ⏳ Prevent UI flicker
   if (loading) {
     return <p style={{ textAlign: "center" }}>Loading...</p>;
-  }
+  }   
 
   return (
     <div>
-      <h1>Youtube video player</h1>
+      <h1 className="text-3xl ">Youtube video player</h1>
       
     <BrowserRouter>
       <Routes>
@@ -35,6 +36,7 @@ const App = () => {
           path="/login"
           element={<Login setIsAuth={setIsAuth} />}
         />
+        {/*forgot password*/}
         <Route
           path="/forgot-password"
           element={<ForgotPassword />}

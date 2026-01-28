@@ -1,0 +1,90 @@
+.login-page {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  padding-top:80px;
+  background-color: #0f0f0f; /* YouTube Dark Background */
+  font-family: 'Roboto', sans-serif;
+}
+
+.login-card {
+  background-color: #1e1e1e;
+  padding: 40px;
+  border-radius: 12px;
+  border-color: #0f0f0f;
+  border-width: 10px;
+  width: 100%;
+  max-width: 380px;
+  box-shadow: 0 10px 30px rgba(64, 53, 53, 0.725);
+  text-align: center;
+}
+
+.login-title {
+  color: #f03232; /* Red Logo Color */
+  margin-bottom: 8px;
+  font-size: 24px;
+}
+
+.login-subtitle {
+  color: #aaaaaa;
+  font-size: 14px;
+  margin-bottom: 30px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.input-group {
+  text-align: left;
+}
+
+.input-group label {
+  display: block;
+  color: #ffffff;
+  font-size: 13px;
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px;
+  background-color: #2a2a2a;
+  border: 1px solid #3d3d3d;
+  border-radius: 6px;
+  color: white;
+  font-size: 15px;
+  box-sizing: border-box; /* Prevents input from overflowing */
+}
+
+.input-group input:focus {
+  outline: 2px solid #ff0000;
+  border-color: transparent;
+}
+
+.login-btn {
+  background-color: #f03232;
+  color: white;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-top: 10px;
+}
+
+.login-btn:hover {
+  background-color: #cc0000;
+}
+
+.error-message {
+  color: #ff4d4d;
+  margin-top: 15px;
+  font-size: 14px;
+}

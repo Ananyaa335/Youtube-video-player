@@ -81,6 +81,7 @@ video {
 .controls svg {
   width: 28px;
   height: 28px;
+  color: white;
 }
 
 .duration-container {
