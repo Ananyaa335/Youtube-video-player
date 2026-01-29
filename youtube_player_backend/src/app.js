@@ -1,3 +1,6 @@
+
+
+
 const express = require("express");
 const helmet = require("helmet");
 const cookieParser = require("cookie-parser");
@@ -5,7 +8,9 @@ const cors = require("cors");
 const authRoutes = require("./routes/auth_routes");
 
 const app = express();
-
+app.get("/ping", (req, res) => {
+  res.send("pong");
+});
 
 app.use(helmet());                  // Security headers
 app.use(express.json());            // Parse JSON

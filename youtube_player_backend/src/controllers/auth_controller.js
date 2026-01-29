@@ -2,15 +2,26 @@ const { createToken } = require("../utils/token");
 const { loginUser } = require("../services/auth_service");
 const authService = require("../services/auth_service");
 
+console.log("LOGIN API HIT");
+
 exports.login = async (req, res) => {
   try {
+    console.log("LOGIN API HIT");
     const { email, password } = req.body;
+    console.log("LOGIN EMAIL:", email);
+    console.log("LOGIN PASSWORD (plain):", password);
 
     const user = await loginUser(email, password);
 
     if (!user) {
       return res.status(401).json({ message: "Invalid email or password" });
     }
+    console.log("LOGIN DEBUG:");
+    console.log("PLAIN PASSWORD:", password);
+    console.log("HASH IN DB:", user.password);
+    
+    
+
 
     const token = createToken({ id: user._id, role: user.role });
 
