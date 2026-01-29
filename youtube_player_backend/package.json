@@ -20,8 +20,13 @@
     "express-rate-limit": "^8.2.1",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.3",
+<<<<<<< HEAD
+    "mongoose": "^9.1.5",
+    "nodemon": "^3.1.11"
+=======
     "mongoose": "^9.1.4",
     "nodemon": "^3.1.11",
     "redis": "^5.10.0"
+>>>>>>> 956fbd8676b800fc36b2d026ac6d3000f094d396
   }
 }
