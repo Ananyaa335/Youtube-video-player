@@ -21,6 +21,8 @@ const Login = ({ setIsAuth }: LoginProps) => {
       await loginUser(email, password);
       setIsAuth(true);
       navigate("/player");
+      console.log("Submitting:", email, password);
+
     } catch {
       setError("Invalid email or password");
     }
